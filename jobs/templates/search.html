@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <title>Job Vulture Search</title>
+    <style>
+        main {  
+            max-width: 900px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header class="heading">
+            <h1>Search for Jobs</h1>
+            <a href="{% url 'home' %}" class="button secondary">Back</a>
+        </header    >
+        <form method="post" id="searchForm">
+            {% csrf_token %}
+
+            <div class="search-container">
+                <h2>Select Posting Site(s) to search</h2>
+                <!-- Checkbox Section -->
+                <div>
+                    <label class="custom-container">
+                        LinkedIn
+                        <input type="checkbox"
+                                name="source"
+                                value="linkedin"
+                                id="linkedin_checkbox"
+                                {% if "linkedin" in sources %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                    </label>
+
+                    <label class="custom-container">
+                        Indeed
+                        <input type="checkbox"
+                                name="source"
+                                value="indeed"
+                                {% if "indeed" in sources %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Two Column Layout -->
+            <div class="form-grid">
+
+                <!-- LEFT COLUMN -->
+                <div class="column left">
+                    <h2>Required Fields</h2>
+
+                    <div class="form-group">
+                        <label>Location</label>
+                        <textarea id="jobLocation" name="jobLocation" placeholder="e.g. Los Angeles">{{ jobLocation|default_if_none:'' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Job Keywords</label>
+                        <textarea id="jobKeyword" name="jobKeyword" placeholder="e.g. Python developer">{{ jobKeyword|default_if_none:'' }}</textarea>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="submit-row">
+                        <button type="submit">
+                            <span id="btnText">Search</span>
+                            <span id="spinner" class="spinner hidden"></span>
+                        </button>
+                    </div>   
+
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="column right" id="linkedin_fields">
+                    <h3>Optional LinkedIn Fields</h3>
+
+                    <div class="form-group">
+                        <label>Job Type</label>
+                        <textarea id="jobType" name="jobType" placeholder="e.g. Full-time">{{ jobType|default_if_none:'' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Experience Level</label>
+                        <textarea id="jobLevel" name="level" placeholder="e.g. Senior">{{ jobLevel|default_if_none:'' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="job_remote">Work Type</label>
+                        <select name="jobRemote" id="job_remote">
+                            <option value="">-- Select --</option>
+
+                            <option value="remote"
+                            {% if jobRemote|default_if_none:'' == "remote" %}selected{% endif %}>
+                            Remote
+                            </option>
+
+                            <option value="onsite"
+                            {% if jobRemote|default_if_none:'' == "onsite" %}selected{% endif %}>
+                            On-site
+                            </option>
+
+                            <option value="hybrid"
+                            {% if jobRemote|default_if_none:'' == "hybrid" %}selected{% endif %}>
+                            Hybrid
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location Radius</label>
+                        <textarea id="jobRadius" name="radiud" placeholder="e.g. 15 miles">{{ jobRadius|default_if_none:'' }}</textarea>
+                    </div>
+                </div>
+
+            </div>
+
+        {% if error %}
+            <div class="message error">
+                <strong>Something went wrong:</strong>
+                <div>{{ error }}</div>
+            </div>
+        {% endif %}
+
+        {% if result %}
+            <div class="message">
+                <strong>Agent response</strong>
+                <pre>{{ result }}</pre>
+            </div>
+        {% endif %}
+        </form>
+    </main>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("searchForm");
+
+        if (!form) return; // safety check
+
+        form.addEventListener("submit", function() {
+            const btn = document.getElementById("submitBtn");
+            const spinner = document.getElementById("spinner");
+            const text = document.getElementById("btnText");
+
+            btn.disabled = true;
+            spinner.classList.remove("hidden");
+            text.textContent = "Searching...";
+        });
+
+        const checkbox = document.getElementById("linkedin_checkbox");
+        const linkedinFields = document.getElementById("linkedin_fields");
+
+        function toggleLinkedInFields() {
+            if (checkbox.checked) {
+            linkedinFields.classList.remove("hidden");
+            } else {
+            linkedinFields.classList.add("hidden");
+            }
+        }
+
+        // Run on page load (important for template values)
+        toggleLinkedInFields();
+
+        // Listen for changes
+        checkbox.addEventListener("change", toggleLinkedInFields);
+
+    });
+</script>
+</body>
+</html>
+

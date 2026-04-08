@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/signup.css' %}">
+    <title>Job Vulture</title>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Job Vulture</h1>
+            <h2>Create your account</h2>
+            <p class="lead">Search Linkedin and Indeed.  Summarizes and displays the results</p>
+        </header>
+
+
+        {% if form.errors or form.non_field_errors %}
+            <div class="errors">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <p>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small>{{ field.help_text|safe }}</small>
+                    {% endif %}
+                </p>
+            {% endfor %}
+            <button type="submit">Create account</button>
+        </form>
+
+        <p class="help">Already have access? <strong><a href="{% url 'login' %}">Sign in</a></strong>.</p>
+    </main>
+</body>
+</html>

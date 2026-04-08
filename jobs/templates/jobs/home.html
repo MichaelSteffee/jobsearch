@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'jobs/home.css' %}">
+    <title>Job Vulture</title>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Welcome to Job Vulture</h1>
+            <p>Launch a new search or review results already gathered.</p>
+        </header>
+
+        <nav>
+            <a class="cta" href="{% url 'search' %}">
+                <h2>Start a Search</h2>
+                <p>Describe your ideal role and let the agent gather fresh listings in minutes.</p>
+            </a>
+            <a class="cta" href="{% url 'results' %}">
+                <h2>Review Results</h2>
+                <p>Check progress, read summaries, and jump straight to the listings that matter.</p>
+            </a>
+        </nav>
+
+        <div class="hint">
+            {% if request.user.is_authenticated %}
+                Signed in as <strong>{{ request.user.get_username }}</strong>. Head to results to see the latest summaries.
+            {% else %}
+                Not signed in yet? <a href="{% url 'login' %}">Log in</a> or <a href="{% url 'signup' %}">create an account</a> to save your searches.
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,45 @@
+main {
+    max-width: 960px;
+    margin: 0 auto;
+}
+nav {
+    margin-top: 32px;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.cta {
+    display: block;
+    padding: 24px;
+    background: #fff;
+    border-radius: 18px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid rgba(30, 64, 175, 0.08);
+    box-shadow: 0 20px 35px rgba(30, 64, 175, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 45px rgba(30, 64, 175, 0.18);
+}
+.cta h2 {
+    margin: 0;
+    font-size: 20px;
+}
+.cta p {
+    margin: 10px 0 0;
+    color: rgba(15, 23, 42, 0.7);
+    font-size: 15px;
+}
+.hint {
+    margin-top: 28px;
+    text-align: center;
+    border-radius: 14px;
+    background: rgba(148, 163, 184, 0.15);
+    color: antiquewhite;
+    font-size: 20px;
+}
+.hint strong {
+    color: yellow;
+}

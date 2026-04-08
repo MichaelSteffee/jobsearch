@@ -1,0 +1,302 @@
+  /*///////////////////////
+ // Search Page Styling //
+///////////////////////*/
+
+body {
+    margin: 0;
+    padding: 56px 16px 72px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #98a5cf, #7a848e 55%);
+    color: #0f172a;
+    max-width: 95vw;
+    max-height: 93vh;
+}
+
+main {  
+    max-width: 720px;
+    margin: 0 auto;
+    background: lightgray;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 24px 40px rgba(15, 23, 42, 0.08);
+}
+
+header {
+    padding: 32px 36px;
+    border-radius: 24px;
+    background: linear-gradient(140deg, rgba(59, 130, 246, 0.95), rgba(59, 130, 246, 0.75) 35%, rgba(99, 102, 241, 0.95));
+    color: #f8fafc;
+    box-shadow: 0 32px 55px rgba(30, 58, 138, 0.25);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 34px;
+    letter-spacing: -0.02em;
+}
+
+header p {
+    margin: 12px 0 0;
+    font-size: 18px;
+    max-width: 520px;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: 26px;
+}
+
+
+.heading {
+    display: flex;
+    justify-content: space-between;
+}
+
+input {
+    width: 80%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(30, 64, 175, 0.2);
+    font: inherit;
+}
+
+input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+
+.button {
+    display: inline-block;
+    margin-top: 10px;
+    margin-right: 10px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #1d4ed8;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.button:hover {
+    opacity: 0.9;
+}
+
+.button.secondary {
+    background: #6b7280;
+}
+
+
+h2 {
+    font-size: 20px;
+    color: green;
+}
+
+/* label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+ */
+/* Hide the default checkbox */
+.custom-container input {
+  position: absolute;
+  display: flex;    
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom checkbox base */
+.checkmark {
+  height: 20px;
+  width: 20px;
+  background-color: red;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+/* Style when the checkbox is hovered */
+.custom-container:hover input ~ .checkmark {
+  background-color: green;
+}
+
+/* Style when the checkbox is checked */
+.custom-container input:checked ~ .checkmark {
+  background-color: green;
+}
+
+/* Create the checkmark indicator (hidden by default) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.custom-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark (the "L" shape) */
+.custom-container .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+
+
+
+.form-group textarea{
+    width: 100%;
+    min-height: 30px;
+    padding: 4px;
+    border: 1px solid #d0d7e5;
+    border-radius: 12px;
+    font: inherit;
+    resize: vertical;
+    vertical-align: middle;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+button {
+    margin-top: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #fff;
+    background: #2563eb;
+    cursor: pointer;
+}
+.message {
+    margin-top: 24px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    background: rgba(37, 99, 235, 0.05);
+}
+.message.error {
+    border-color: rgba(220, 38, 38, 0.35);
+    background: rgba(220, 38, 38, 0.08);
+    color: #b91c1c;
+}
+pre {
+    margin: 12px 0 0;
+    padding: 16px;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 12px;
+    overflow: auto;
+    font-size: 14px;
+}
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-top: 2px solid #333;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.search-container {
+    margin: 10px auto;
+    font-family: Arial, sans-serif;
+}
+
+/* .source-select {
+    max-width: 75%;
+    margin: 10px;
+    padding: 10px;
+
+}
+
+/* Checkbox row */
+/* .checkbox-row {
+    display: inline;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+ */
+/* Grid layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr; /* Right column wider */
+}
+
+/* Column styling */
+.column h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+/* Form fields */
+.form-group {
+    margin: 8px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+ .form-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Submit button */
+.submit-row {
+    margin-top: 25px;
+}
+
+button {
+    padding: 10px 18px;
+    background-color: #2d6cdf;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #1f4fbf;
+}
+
+.hidden {
+    display: none;
+}
+
+#linkedin_fields {
+    transition: all 0.25s ease;
+}

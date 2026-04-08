@@ -1,0 +1,71 @@
+main {
+    max-width: 420px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 35px 60px rgba(30, 64, 175, 0.18);
+}
+h1 {
+    margin: 0 0 16px;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+}
+
+p.lead {
+    margin: 0 0 24px;
+    color: rgba(15, 23, 42, 0.65);
+    font-size: 15px;
+}
+form {
+    display: grid;
+    gap: 14px;
+}
+form p {
+    margin: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+    color: rgba(15, 23, 42, 0.8);
+}
+input {
+    width: 80%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(30, 64, 175, 0.2);
+    font: inherit;
+}
+input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+button {
+    margin-top: 8px;
+    padding: 12px;
+    border: none;
+    border-radius: 999px;
+    font-weight: 600;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+}
+.help {
+    margin-top: 18px;
+    font-size: 14px;
+}
+.help a {
+    text-decoration: none;
+}
+.errors {
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(220, 38, 38, 0.1);
+    color: #b91c1c;
+    font-size: 14px;
+}
+
+strong {
+    color: yellow;
+}

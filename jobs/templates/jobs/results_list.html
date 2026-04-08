@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'jobs/results.css' %}">
+    <title>Job Vulture Job Searches</title>
+
+</head>
+<body>
+    <main>
+        <header class="heading">
+            <h1>Saved Job Searches</h1>
+            <a href="{% url 'home' %}" class="button secondary">Back</a>
+        </header>
+
+        {% if results %}
+            {% for entry in results %}
+                <article class="card">
+                    <header class="card-header">
+                        <h2>{{ entry.result.title|default:'Untitled search' }}</h2>
+                        <span class="status">{{ entry.result.status }}</span>
+                        <span class="progress">
+                            Snapshots ready: {{ entry.ready_snapshots }} / {{ entry.total_snapshots }}
+                        </span>
+                    </header>
+                    <div class="card-body">
+                        {% if entry.job_listings %}
+                            <ul class="listings">
+                                {% for listing in entry.job_listings %}
+                                    <li class="listing">
+                                        <h3>{{ listing.title }}</h3>
+                                        <p class="meta">
+                                            {% if listing.company_name %}<span>{{ listing.company_name }}</span>{% endif %}
+                                            {% if listing.job_function %}<span>{{ listing.job_function }}</span>{% endif %}
+                                            {% if listing.job_industries %}<span>{{ listing.job_industries }}</span>{% endif %}
+                                            {% if listing.job_location %}<span>{{ listing.job_location }}</span>{% endif %}
+                                            {% if listing.company_url %}<span>{{ listing.company_url }}</span>{% endif %}
+                                            {% if listing.level %}<span>{{ listing.level }}</span>{% endif %}
+                                            {% if listing.job_type %}<span>{{ listing.job_type }}</span>{% endif %}
+                                            {% if listing.salary %}<span>{{ listing.salary }}</span>{% endif %}
+                                        </p>
+                                        {% if listing.summary %}
+                                            
+                                        <div class="listing-container">
+                                            <p class="listing-summary" data-full="{{ listing.summary }}">
+                                            </p>
+                                            <button class="read-more-btn">Read More</button>
+                                        </div>
+
+                                        {% endif %}
+                                        <p class="meta">
+                                            <p>{{ listing.job_url }}</p>
+                                            {% if listing.posted %}<span>Posted: {{ listing.posted }}</span>{% endif %}
+                                            {% if listing.applicants %}<span>Applicants: {{ listing.applicants }}</span>{% endif %}
+                                        </p>
+                                        <a href="{{ listing.job_url }}" target="_blank" rel="noopener noreferrer" class="button">View job</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="muted">No listings yet. This search is still being processed.</p>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                Run a job search to see your results here.
+            </div>
+        {% endif %}
+
+    </main>
+</body>
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const maxChars = 250;
+
+        document.querySelectorAll(".listing-container").forEach(container => {
+            const summary = container.querySelector(".listing-summary");
+            const btn = container.querySelector(".read-more-btn");
+
+            let originalText = summary.dataset.full || "";
+
+            // ✅ Clean junk text
+            originalText = originalText
+                .replace(/Show more/gi, "")
+                .replace(/Show less/gi, "")
+                .trim();
+
+            if (originalText.length > maxChars) {
+                const truncatedText = originalText.substring(0, maxChars) + "...";
+
+                summary.innerText = truncatedText;
+                summary.dataset.full = originalText;
+                summary.dataset.truncated = truncatedText;
+                summary.classList.add("truncated");
+                btn.style.display = "inline";
+
+            } else {
+                summary.innerText = originalText;
+                btn.style.display = "none";
+                btn.style.display = "none";
+            }
+
+            btn.addEventListener("click", () => {
+                const isTruncated = summary.classList.contains("truncated");
+
+                if (isTruncated) {
+                    summary.innerText = summary.dataset.full;
+                    summary.classList.remove("truncated");
+                    btn.innerText = "Read Less";
+                } else {
+                    summary.innerText = summary.dataset.truncated;
+                    summary.classList.add("truncated");
+                    btn.innerText = "Read More";
+                }
+            });
+        });
+    });
+</script>
+
+</html>
