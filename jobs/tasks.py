@@ -1,61 +1,87 @@
-from .models import Snapshot, JobReqResult, JobListingResult
-from .services import get_data
 import time
+from .models import JobReqResult, Snapshot, JobListingResult
+from .services import get_data
 
 
-def process_snapshots_and_summarize(jobreq_result_id):
-    try:
-        jobreq_result = JobReqResult.objects.get(id=jobreq_result_id)
-        print("TASK RUNNING", jobreq_result_id)
+def process_snapshots_and_summarize(jobreq_id):
+    jobreq = JobReqResult.objects.get(id=jobreq_id)
 
-        jobreq_result.status = 'processing'
-        jobreq_result.save()
+    print("starting process_snapshots_and... for jobreq ", jobreq_id)
+    while True:
+        snapshots = Snapshot.objects.filter(jobreq_result=jobreq, ready=False)
 
-        snapshots = Snapshot.objects.filter(jobreq_result_id=jobreq_result_id)
-
-        # Wait for snapshots to exist
-        retries = 5
-        while not snapshots.exists() and retries > 0:
-            print("Waiting for snapshots...")
-            time.sleep(2)
-            snapshots = Snapshot.objects.filter(jobreq_result_id=jobreq_result_id)
-            retries -= 1
-
-        print("SNAPSHOT COUNT:", snapshots.count())
+        if not snapshots.exists():
+            break  # all done
 
         for snapshot in snapshots:
-            # Fetch fresh data
-            print("Fetching snapshot:", snapshot.snapshot_id)
+            try:
+                data = get_data(snapshot.snapshot_id)
 
-            data = get_data(snapshot.snapshot_id)
+                # still running → skip for now
+                if isinstance(data, dict) and data.get("status") == "running":
+                    continue
 
-            print("DATA RETURNED:", data)
-            snapshot.data = data
-            snapshot.ready = True
-            snapshot.save()
+                if not data:
+                    continue
 
-            # 🔥 KEY CHANGE: iterate actual structured data
-            jobs = data.get("jobs", [])  # adjust key if needed
+                # ✅ mark ready
+                snapshot.data = data
+                snapshot.ready = True
+                listing_source = snapshot.source
+                snapshot.save()
 
-            for job in jobs:
-                JobListingResult.objects.create(
-                    jobreq_result=jobreq_result,
-                    title=job.get("title"),
-                    source=snapshot.source,
-                    job_url=job.get("url"),  # ✅ direct mapping
-                    job_type=job.get("job_type"),
-                    level=job.get("level"),
-                    summary=job.get("description") or job.get("summary"),
-                    salary=job.get("salary"),
-                    posted=job.get("posted") or job.get("date_posted"),
-                    applicants=job.get("applicants"),
-                )
+                # ✅ create jobs
+                job_objects = []
 
-        jobreq_result.status = 'ready'
-        jobreq_result.save()
+                for job in data:
+                
+                    if not job:
+                        print("Skipping empty job:", job)
+                        continue
 
-        return f"Successfully processed Job Request result for {jobreq_result.id}"
+                    title = job.get("job_title")
+                    url = job.get("url")
 
-    except Exception as e:
-        print("ERROR:", str(e))
-        raise
+                    # 🚨 skip invalid jobs
+                    if not title or not url:
+                        print("Skipping invalid job:", job)
+                        continue
+
+                    print("creating job", title)
+
+                    job_objects.append(
+                        JobListingResult(
+                            jobreq_result=jobreq,
+                            job_url=job.get("url"),
+                            title=job.get("job_title"),
+                            job_type=job.get("job_employment_type"),
+                            level=job.get("job_seniority_level"),
+                            summary=job.get("job_summary"),
+                            salary=job.get("base_salary"),
+                            posted=job.get("job_posted_date"),
+                            applicants=job.get("job_num_applicants"),
+                            company_name=job.get("company_name"),
+                            job_location=job.get("job_location"),
+                            job_function=job.get("job_function"),
+                            job_industries=job.get("job_industries"),
+                            company_url=job.get("company_url"),
+                            source=listing_source,
+                        )
+                    )
+                print("ready to create job listings")
+
+                JobListingResult.objects.bulk_create(job_objects)
+
+            except Exception as e:
+                print(f"Error processing snapshot {snapshot.id}: {e}")
+
+        # update jobreq status
+        if Snapshot.objects.filter(jobreq_result=jobreq, ready=False).exists():
+            jobreq.status = "processing"
+        else:
+            jobreq.status = "ready"
+
+        jobreq.save()
+
+        # ⏳ wait before polling again
+        time.sleep(60)  # adjust as needed

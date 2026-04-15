@@ -32,19 +32,19 @@ for jobreq_result in jobreq_results:
     # If none exist, Django gives you an empty queryset (this is your "outer join")
     if not snapshots:
         snapshots = [None]
-if not listings:
-    listings = [None]
+    if not listings:
+        listings = [None]
 
-for snapshot in snapshots:
-    for listing in listings:
-        print(
-            jobreq_result.title,
-            jobreq_result.status,
-            snapshot.snapshot_id if snapshot else None,
-            snapshot.ready if snapshot else None,
-            listing.title if listing else None,
-            listing.company_name if listing else None,
-        )
+    for snapshot in snapshots:
+        for listing in listings:
+            print(
+                jobreq_result.title,
+                jobreq_result.status,
+                snapshot.snapshot_id if snapshot else None,
+                snapshot.ready if snapshot else None,
+                listing.title if listing else None,
+                listing.company_name if listing else None,
+            )
 
 # User Details
 jobreq_results = JobReqResult.objects.select_related('owner').prefetch_related(
@@ -69,3 +69,17 @@ for jobreq_result in jobreq_results:
 from django.contrib.auth.models import User
 user = User.objects.filter(username="tim")
 user.delete()
+
+
+
+# curl test for brigthdata
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+try:
+    r = requests.get("https://api.brightdata.com", timeout=10)
+    print("Status:", r.status_code)
+except Exception as e:
+    print("ERROR:", e)

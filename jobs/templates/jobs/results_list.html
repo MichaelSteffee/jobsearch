@@ -15,7 +15,7 @@
             <h1>Saved Job Searches</h1>
             <a href="{% url 'home' %}" class="button secondary">Back</a>
         </header>
-
+        
         {% if results %}
             {% for entry in results %}
                 <article class="card">
@@ -70,6 +70,11 @@
             <div class="empty">
                 Run a job search to see your results here.
             </div>
+        {% endif %}
+        {% if result.status != "ready" %}
+            <script>
+                setTimeout(() => location.reload(), 300000);
+            </script>
         {% endif %}
 
     </main>

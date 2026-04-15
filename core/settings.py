@@ -24,10 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY =  config('DJANGO_SECRET_KEY')
 OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+# temp for dev
+DEBUG = True
+ALLOWED_HOSTS = []
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+# SECURITY WARNING: don't run with debug turned on in production!
+#DEBUG = config('DEBUG', default=False, cast=bool)
+
+#ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 USE_X_FORWARDED_HOST = True
 
