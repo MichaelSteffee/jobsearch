@@ -26,7 +26,7 @@ OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
 
 # temp for dev
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["michaelsteffee.com"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = config('DEBUG', default=False, cast=bool)
@@ -124,17 +124,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+STATIC_URL = '/jobsearch-static/'
 
-STATIC_URL = '/django-static/'
-
-# Add this to look in the root static directory
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#  Turned off STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # I think this is the same as STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
