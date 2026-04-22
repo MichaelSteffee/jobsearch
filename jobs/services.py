@@ -10,10 +10,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain.agents import create_agent
-from langchain.tools import tool
-
 from .models import Snapshot, JobReqResult
+
+# Functions to search specific Job Listing Sites
+# LinkedIn and Indeed
 
 def search_jobs_on_linkedin(jobreq_result_id: int, location: str, keyword: str, country: str = "US"):
     print("Starting search_jobs_on_linkedin")
@@ -92,6 +92,8 @@ def search_jobs_on_indeed(jobreq_result_id: int, location: str, keyword: str, co
     return requests.post(url, headers=headers, params=params, json=data, timeout=30)
 
 
+# function to trigger individual snapshots of each job site's listings
+
 def fetch_data_with_retry(
     jobreq_result_id,
     jobKeyword: str,
@@ -155,6 +157,9 @@ def fetch_data_with_retry(
             else:
                 raise
 
+# Function that passes job search form data to function 
+# that creates snapshots of the listing requests
+
 def start_job_search(
     jobreq_result_id: int,
     jobKeyword: str,
@@ -195,6 +200,8 @@ def start_job_search(
 
     return results
 
+# Functions that checks the status of snpashot running on Brightdata
+
 def is_ready(snapshot_id: str) -> bool:
     url = f'https://api.brightdata.com/datasets/v3/progress/{snapshot_id}'
 
@@ -205,6 +212,7 @@ def is_ready(snapshot_id: str) -> bool:
 
     return requests.get(url, headers=headers).json()['status'] == 'ready'
     
+# Functions that retrieves the result of completed snpashot on Brightdata
 
 def get_data(snapshot_id: str) -> dict:
     url = f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot_id}?format=json"
@@ -219,4 +227,3 @@ def get_data(snapshot_id: str) -> dict:
     response.raise_for_status()
 
     return response.json()
-

@@ -10,11 +10,14 @@
 
 </head>
 <body>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <main>
         <header class="heading">
             <h1>Saved Job Searches</h1>
             <a href="{% url 'home' %}" class="button secondary">Back</a>
         </header>
+
+        <!-- One Card for each Job Request, starting with a header -->
         
         {% if results %}
             {% for entry in results %}
@@ -25,13 +28,17 @@
                         <span class="progress">
                             Snapshots ready: {{ entry.ready_snapshots }} / {{ entry.total_snapshots }}
                         </span>
+                        <button class="delete-button" data-id="{{ entry.result.id }}">❌</button>
                     </header>
+
+                    <!-- Card Body has each Job Listing, it's Summary and Action Buttons -->
+
                     <div class="card-body">
                         {% if entry.job_listings %}
                             <ul class="listings">
                                 {% for listing in entry.job_listings %}
                                     <li class="listing">
-                                        <h3>{{ listing.title }}</h3>
+                                         <h3>{{ listing.title }}</h3>
                                         <p class="meta">
                                             {% if listing.company_name %}<span>{{ listing.company_name }}</span>{% endif %}
                                             {% if listing.job_function %}<span>{{ listing.job_function }}</span>{% endif %}
@@ -42,26 +49,65 @@
                                             {% if listing.job_type %}<span>{{ listing.job_type }}</span>{% endif %}
                                             {% if listing.salary %}<span>{{ listing.salary }}</span>{% endif %}
                                         </p>
+
+                                        <!-- Listing Summary -->
+
                                         {% if listing.summary %}
                                             
                                         <div class="listing-container">
                                             <p class="listing-summary" data-full="{{ listing.summary }}">
                                             </p>
-                                            <button class="read-more-btn">Read More</button>
-                                        </div>
 
+                                            <button class="read-more-btn">Read More</button>
+
+                                        </div>
                                         {% endif %}
                                         <p class="meta">
                                             <p>{{ listing.job_url }}</p>
                                             {% if listing.posted %}<span>Posted: {{ listing.posted }}</span>{% endif %}
                                             {% if listing.applicants %}<span>Applicants: {{ listing.applicants }}</span>{% endif %}
                                         </p>
-                                        <a href="{{ listing.job_url }}" target="_blank" rel="noopener noreferrer" class="button">View job</a>
-                                    </li>
+
+                                        <!-- Action Buttons and Status Field  -->
+
+                                        <div>
+                                            <a href="{{ listing.job_url }}" target="_blank" rel="noopener noreferrer" class="button">View job</a>
+                                            
+                                            <button class="interested-btn"
+                                                    data-id="{{ listing.id }}"
+                                                    data-interest="{{ listing.interested }}">
+                                                Interested 👍
+                                            </button>
+
+                                            <button class="not-interested-btn"
+                                                    data-id="{{ listing.id }}"
+                                                    data-interest="{{ listing.interested }}">
+                                                Not Interested 👎
+                                            </button>                                        
+                                            
+                                            <button class="applied-btn"
+                                                    data-id="{{ listing.id }}"
+                                                    data-applied="{{ listing.applied }}">
+                                                Applied ❔
+                                            </button>
+                                            
+                                            <select class="app-status-list" data-id="{{ listing.id }}">
+                                                <option value="">Select an option</option>
+                                                {% for value, label in listing.APP_STATUSES %}
+                                                    <option value="{{ value }}"
+                                                        {% if listing.status == value %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
                             <p class="muted">No listings yet. This search is still being processed.</p>
+
                         {% endif %}
                     </div>
                 </article>
@@ -71,9 +117,12 @@
                 Run a job search to see your results here.
             </div>
         {% endif %}
+
+        <!-- Recheck in 2 minutes -->
+
         {% if result.status != "ready" %}
             <script>
-                setTimeout(() => location.reload(), 300000);
+                setTimeout(() => location.reload(), 120000);
             </script>
         {% endif %}
 
@@ -81,8 +130,155 @@
 </body>
 <script>
 
+    
     document.addEventListener("DOMContentLoaded", () => {
         const maxChars = 250;
+
+        // When the page loads, load values and listeners 
+        // for each set of buttons and status field
+
+        document.querySelectorAll(".listing").forEach(card => {
+            const btn_interested = card.querySelector(".interested-btn");
+            const btn_not_interested = card.querySelector(".not-interested-btn");
+            const btn_applied = card.querySelector(".applied-btn");
+            const app_status = card.querySelector(".app-status-list");
+            const btn_close = card.querySelector(".close-button");
+
+            // guard clause
+            if (!btn_interested || !btn_not_interested) return;
+            
+            // Set initial states based on DB values
+
+            const interest = btn_interested.dataset.interest;
+
+            if (interest === "Y") {
+                btn_interested.innerText = "Interested ✅";
+                btn_not_interested.innerText = "Not Interested";
+            } else if (interest === "N") {
+                btn_not_interested.innerText = "Not Interested ❌";
+                btn_interested.innerText = "Interested";
+            }
+
+            const applied = btn_applied.dataset.applied;
+
+            if (applied === "Y") {
+                btn_applied.innerText = "Applied ✅";
+            } else  {
+                btn_applied.innerText = "Applied ❔";
+            }
+
+            function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+            }
+
+            btn_interested.addEventListener("click", async () => {
+                const id = btn_interested.dataset.id;
+
+                try {
+                    const res = await fetch(`/listing/${id}/interest/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-CSRFToken": getCSRFToken()
+                        },
+                        body: "value=Y"
+                    });
+
+                    if (!res.ok) throw new Error();
+
+                    updateInterestUI(card, "Y");
+
+                } catch {
+                    alert("Failed to update");
+                }
+            });
+
+            btn_not_interested.addEventListener("click", async () => {
+                const id = btn_not_interested.dataset.id;
+
+                try {
+                    const res = await fetch(`/listing/${id}/interest/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-CSRFToken": getCSRFToken()
+                        },
+                        body: "value=N"
+                    });
+
+                    if (!res.ok) throw new Error();
+
+                    updateInterestUI(card, "N");
+
+                } catch {
+                    alert("Failed to update");
+                }
+            });
+
+            btn_applied.addEventListener("click", async () => {
+                const id = btn_applied.dataset.id;
+                const current = btn_applied.dataset.applied === "Y" ? "Y" : "N";
+                const newValue = current === "Y" ? "N" : "Y";
+
+                try {
+                    const res = await fetch(`/listing/${id}/applied/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-CSRFToken": getCSRFToken()
+                        },
+                        body: "value=" + newValue
+                    });
+
+                    if (!res.ok) throw new Error("Request failed");
+
+                    // ✅ Update dataset FIRST
+                    const data = await res.json();
+                    btn_applied.dataset.applied = data.value;
+
+                    // ✅ Then update UI
+                    btn_applied.innerText = newValue === "Y"
+                        ? "Applied ✅"
+                        : "Applied ❔";
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to update applied status");
+                }
+            });
+
+            app_status.addEventListener("change", async () => {
+                const id = app_status.dataset.id;
+                const newValue = app_status.value;
+
+                try {
+                    const res = await fetch(`/listing/${id}/status/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-CSRFToken": getCSRFToken()
+                        },
+                        body: "value=" + newValue
+                    });
+
+                    if (!res.ok) throw new Error();
+
+                    // ✅ Keep DOM in sync
+                    const data = await res.json();
+                    app_status.dataset.status = data.value;
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to update status");
+
+                    // ❗ rollback UI if server fails
+                    app_status.value = app_status.dataset.status || "";
+                }
+            });
+            
+        });
+
+        // Pop up for full listing summary
 
         document.querySelectorAll(".listing-container").forEach(container => {
             const summary = container.querySelector(".listing-summary");
@@ -90,7 +286,7 @@
 
             let originalText = summary.dataset.full || "";
 
-            // ✅ Clean junk text
+            //  Clean junk text
             originalText = originalText
                 .replace(/Show more/gi, "")
                 .replace(/Show less/gi, "")
@@ -125,7 +321,54 @@
                 }
             });
         });
-    });
+
+        document.querySelectorAll(".delete-button").forEach(button => {
+            button.addEventListener("click", async () => {
+                const id = button.dataset.id;
+
+                if (!confirm("Delete this job search and all its listings?")) {
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/result/${id}/delete/`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    });
+
+                    if (!res.ok) throw new Error();
+
+                    // ✅ Remove card from DOM
+                    const card = button.closest(".card");
+                    card.style.opacity = "0.5";
+                    setTimeout(() => card.remove(), 300);
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to delete");
+                }
+            });
+        });
+    }); 
+
+    function updateInterestUI(card, value) {
+        const btnYes = card.querySelector(".interested-btn");
+        const btnNo = card.querySelector(".not-interested-btn");
+
+        btnYes.dataset.interest = value;
+        btnNo.dataset.interest = value;
+
+        if (value === "Y") {
+            btnYes.innerText = "Interested ✅";
+            btnNo.innerText = "Not Interested";
+        } else {
+            btnNo.innerText = "Not Interested ❌";
+            btnYes.innerText = "Interested";
+        }
+    }
+
 </script>
 
 </html>

@@ -26,7 +26,7 @@ OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
 
 # temp for dev
 DEBUG = True
-ALLOWED_HOSTS = ["michaelsteffee.com"]
+ALLOWED_HOSTS = ["michaelsteffee.com", "127.0.0.1"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = config('DEBUG', default=False, cast=bool)

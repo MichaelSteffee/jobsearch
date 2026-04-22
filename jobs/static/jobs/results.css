@@ -1,5 +1,5 @@
 main {
-    max-width: 960px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -48,15 +48,13 @@ header {
 }
 .status {
     padding: 6px 14px;
-    border-radius: 999px;
-    background: #1d4ed8;
-    color: #fff;
-    font-size: 13px;
+    color: #1d4ed8;
+    font-size: 1.2rem;
     text-transform: capitalize;
 }
 .progress {
-    font-size: 14px;
-    color: rgba(31, 41, 55, 0.7);
+    font-size: 1rem;
+    color: rgba(0,0,0,1);
 }
 .card-body {
     padding: 24px;
@@ -159,4 +157,23 @@ header {
     right: 0;
     height: 30px;
     background: linear-gradient(to bottom, transparent, white);
+}
+
+select {
+    font-size: 1.4rem;
+    color: #1d4ed8;
+    margin-left: 10px;
+    height: 50px;
+    width: 300px;
+}
+
+.delete-button {
+    width: 33px;
+    padding: 0;
+    height: 33px;
+    font-size: 1.1rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    text-align: center;
+    border: red 2px solid;
 }

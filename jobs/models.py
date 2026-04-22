@@ -8,7 +8,6 @@ class JobReqResult(models.Model):
         ('processing', 'Processing'),
         ('ready', 'Ready')
     ]
-
     title = models.CharField(max_length=256)
     status = models.CharField(max_length=64, choices=STATUS_CHOICES, default='pending')
     jobLocation = models.TextField()
@@ -20,6 +19,12 @@ class JobReqResult(models.Model):
 
 
 class JobListingResult(models.Model):
+    YES_NO_CHOICES = [('Y', 'Yes'), ('N', 'No'),]
+    APP_STATUSES = [('nothing', 'Nothing so far'), 
+                    ('investigating', 'Investigating'),
+                    ('waiting', 'Waiting for Response'), 
+                    ('talking', 'Talking'), ('rejected', 'Rejected'), 
+                    ('interview', 'Interview Scheduled'), ]
     title = models.CharField(max_length=1024)
     job_url = models.CharField(max_length=1024)
     company_name = models.CharField(max_length=1024, null=True, blank=True)
@@ -34,7 +39,23 @@ class JobListingResult(models.Model):
     posted = models.CharField(max_length=1024, null=True, blank=True)
     applicants = models.IntegerField(null=True, blank=True)
     source = models.CharField(max_length=50) 
-
+    interested = models.CharField(max_length=1, choices=YES_NO_CHOICES,
+        null=True,     # allows NULL in database
+        blank=True     # allows empty in forms/admin
+    )
+    interested_date = models.DateField(null=True, blank=True)
+    applied = models.CharField(max_length=1, choices=YES_NO_CHOICES,
+        null=True,     # allows NULL in database
+        blank=True     # allows empty in forms/admin
+    )
+    applied_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=30, choices=APP_STATUSES,
+        null=True,     # allows NULL in database
+        blank=True     # allows empty in forms/admin
+    )
+    status_date = models.DateField(null=True, blank=True)
+    
+    
     jobreq_result = models.ForeignKey(JobReqResult, on_delete=models.CASCADE, related_name='job_listing_results')
 
 
