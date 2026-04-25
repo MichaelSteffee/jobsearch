@@ -26,7 +26,24 @@ OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
 
 # temp for dev
 DEBUG = True
-ALLOWED_HOSTS = ["michaelsteffee.com", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "michaelsteffee.com",
+    "www.michaelsteffee.com",
+    "127.0.0.1",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://michaelsteffee.com",
+    "https://www.michaelsteffee.com",
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/django/jobsearch/'   # or wherever you want after login
+LOGOUT_REDIRECT_URL = '/django/jobsearch/'
+
+FORCE_SCRIPT_NAME = '/django/jobsearch'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = config('DEBUG', default=False, cast=bool)
@@ -124,7 +141,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-STATIC_URL = '/jobsearch-static/'
+STATIC_URL = '/django/jobsearch/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
