@@ -1,10 +1,13 @@
-<<<<<<< HEAD
-venv
-=======
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
+
+# static files
+staticfiles/
+
+deploy.sh
+jobsearch_deploy.sh
 
 # C extensions
 *.so
@@ -141,6 +144,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+venv
 env/
 venv/
 ENV/
@@ -208,5 +212,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
->>>>>>> 3e32a64f6cc59ad8dc66d8bbb99d854f6c4aadc3
 .env
