@@ -90,6 +90,16 @@ for jobreq_result in jobreq_results:
     for listing in jobreq_result.job_listing_results.all():
         print("   JOB:", listing.title, listing.company_name, listing.source)
 
+# User Details
+jobreq_results = JobReqResult.objects.select_related('owner').prefetch_related(
+    'snapshots',
+    'job_listing_results'
+)
+for jobreq_result in jobreq_results:
+    if (jobreq_result.owner.username == 'tech'):
+        for listing in jobreq_result.job_listing_results.all():
+            print("   JOB:", listing.title, listing.company_name, listing.source, jobreq_result.owner.username, jobreq_result.title)
+
 
 from django.contrib.auth.models import User
 user = User.objects.filter(username="tim")

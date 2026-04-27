@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'jobs/job_table.css' %}">
+    <title>Job Vulture Interested Jobs</title>
+
+</head>
+<body>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <main>
+        <header class="heading">
+            <h1>Saved Job Searches</h1>
+            <a href="{% url 'home' %}" class="button secondary">Back</a>
+        </header>
+
+        {% if results %}
+        <table class="listings-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Function</th>
+                    <th>Industry</th>
+                    <th>Location</th>
+                    <th>Level</th>
+                    <th>Type</th>
+                    <th>Salary</th>
+                    <th>Interest</th>
+                    <th>Applied</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in results %}
+                <tr class="clickable-row" data-summary="{{ listing.summary|escapejs }}">
+                    <td>
+                        <a href="{{ listing.job_url }}" target="_blank">
+                            {{ listing.title }}
+                        </a>
+                    </td>
+                    <td>{{ listing.company_name }}</td>
+                    <td>{{ listing.job_function }}</td>
+                    <td>{{ listing.job_industries }}</td>
+                    <td>{{ listing.job_location }}</td>
+                    <td>{{ listing.level }}</td>
+                    <td>{{ listing.job_type }}</td>
+                    <td>{{ listing.salary_display }}</td>
+                    <td>
+                        <select class="interest-select"
+                                data-url="{% url 'update_interest' listing.id %}">
+                            <option value="">--</option>
+                            <option value="Y" {% if listing.interested == 'Y' %}selected{% endif %}>Y</option>
+                            <option value="N" {% if listing.interested == 'N' %}selected{% endif %}>N</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="applied-select"
+                                data-url="{% url 'update_applied' listing.id %}">
+                            <option value="">--</option>
+                            <option value="Y" {% if listing.applied == 'Y' %}selected{% endif %}>Y</option>
+                            <option value="N" {% if listing.applied == 'N' %}selected{% endif %}>N</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="status-select"
+                                data-url="{% url 'update_status' listing.id %}">
+                            <option value="">--</option>
+                            <option value="nothing" {% if listing.status == 'nothing' %}selected{% endif %}>Nothing</option>
+                            <option value="investigating" {% if listing.status == 'investigating' %}selected{% endif %}>Investigating</option>
+                            <option value="waiting" {% if listing.status == 'waiting' %}selected{% endif %}>Waiting</option>
+                            <option value="talking" {% if listing.status == 'talking' %}selected{% endif %}>Talking</option>
+                            <option value="interview" {% if listing.status == 'interview' %}selected{% endif %}>Interview</option>
+                            <option value="rejected" {% if listing.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </td>
+                </tr>
+                
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            Run a job search to see your results here.
+        </div>
+        {% endif %}
+
+        <div id="summaryPanel" class="summary-panel">
+            <div class="panel-header">
+                <span>Job Summary</span>
+                <span id="closePanel" class="close-btn">&times;</span>
+            </div>
+            <div id="panelContent" class="panel-content">
+                Select a job to view details.
+            </div>
+        </div>
+
+    </main>
+
+</body>
+
+<script>
+    document.querySelectorAll(".listings-table th").forEach((header, colIndex) => {
+        header.addEventListener("click", () => {
+            const table = header.closest("table");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+
+            const isAsc = header.classList.toggle("asc");
+            header.classList.toggle("desc", !isAsc);
+
+            rows.sort((a, b) => {
+                let aText = a.children[colIndex].innerText.trim();
+                let bText = b.children[colIndex].innerText.trim();
+
+                // Try numeric comparison first
+                let aNum = parseFloat(aText.replace(/[^0-9.-]+/g,""));
+                let bNum = parseFloat(bText.replace(/[^0-9.-]+/g,""));
+
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return isAsc ? aNum - bNum : bNum - aNum;
+                }
+
+                // Fallback to string compare
+                return isAsc
+                    ? aText.localeCompare(bText)
+                    : bText.localeCompare(aText);
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    function postUpdate(url, value) {
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken(),
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ value: value })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status !== "ok") {
+                alert("Update failed");
+            }
+        })
+        .catch(() => alert("Error updating"));
+    }
+
+    document.querySelectorAll("select").forEach(select => {
+        select.addEventListener("change", function () {
+            const url = this.dataset.url;
+            const value = this.value;
+            const row = this.closest("tr");
+
+            // Identify what kind of field this is
+            const isApplied = this.classList.contains("applied-select");
+            const isInterest = this.classList.contains("interest-select");
+
+            const interestSelect = row.querySelector(".interest-select");
+            const appliedSelect = row.querySelector(".applied-select");
+
+            // ✅ Rule 1: Applied = Y → Interested = Y
+            if (isApplied && value === "Y") {
+                if (interestSelect.value !== "Y") {
+                    interestSelect.value = "Y";
+                    postUpdate(interestSelect.dataset.url, "Y");
+                }
+            }
+
+            // ✅ Optional Rule 2: Interested = N → Applied cannot be Y
+            if (isInterest && value === "N") {
+                if (appliedSelect.value === "Y") {
+                    appliedSelect.value = "";
+                    postUpdate(appliedSelect.dataset.url, "");
+                }
+            }
+
+            // Normal update
+            postUpdate(url, value);
+        });
+    });
+
+    document.querySelectorAll(".interest-select").forEach(select => {
+        select.addEventListener("change", function () {
+            const value = this.value;
+            const row = this.closest("tr");
+            const appliedSelect = row.querySelector(".applied-select");
+
+            // If Interested = N → reset Applied
+            if (value === "N" && appliedSelect.value === "Y") {
+                appliedSelect.value = "";
+                postUpdate(appliedSelect.dataset.url, "");
+            }
+
+            postUpdate(this.dataset.url, value);
+        });
+    });
+
+    const panel = document.getElementById("summaryPanel");
+    const panelContent = document.getElementById("panelContent");
+    const closePanel = document.getElementById("closePanel");
+
+    // Row click → open panel
+    document.querySelectorAll(".clickable-row").forEach(row => {
+        row.addEventListener("click", function (e) {
+
+            // Ignore controls
+            if (e.target.tagName === "SELECT" || 
+                e.target.tagName === "OPTION" || 
+                e.target.tagName === "A") {
+                return;
+            }
+
+            const summary = this.dataset.summary || "No summary available.";
+            panelContent.innerText = summary;
+
+            panel.style.display = "flex";
+        });
+    });
+
+    // Close button
+    closePanel.addEventListener("click", () => {
+        panel.style.display = "none";
+    });
+
+    // Click outside modal closes it
+    window.addEventListener("click", (e) => {
+        if (e.target === panel) {
+            panel.style.display = "none";
+        }
+    });
+
+</script>
+
+
+</html>

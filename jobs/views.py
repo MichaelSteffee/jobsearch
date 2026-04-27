@@ -88,6 +88,17 @@ def results_list_view(request):
         'results': results_data
     })
 
+@login_required
+def interested_jobs_view(request):
+
+    print("starting interested_jobs_view")
+
+    listings = JobListingResult.objects.filter(jobreq_result__owner=request.user).select_related('jobreq_result').order_by('-id')
+    
+    return render(request, 'jobs/interested_jobs_table.html', {
+        'results': listings
+    })
+
 # Updates to Job Listing Action Buttons and Status
 
 from django.http import JsonResponse
@@ -114,20 +125,28 @@ def update_interest(request, pk):
 
     return JsonResponse({"status": "invalid"}, status=400)
 
+
 @login_required
 def update_applied(request, pk):
     if request.method == "POST":
-        value = request.POST.get("value")  # 'Y' or 'N'
+        value = request.POST.get("value")
 
         try:
             listing = JobListingResult.objects.get(pk=pk)
+
             listing.applied = value
             listing.applied_date = timezone.now().date()
+
+            # 🔥 enforce rule here
+            if value == "Y":
+                listing.interested = "Y"
+                listing.interested_date = timezone.now().date()
+
             listing.save()
 
             return JsonResponse({
                 "status": "ok",
-                "value": listing.applied   # or applied/interested
+                "value": listing.applied
             })
         except JobListingResult.DoesNotExist:
             return JsonResponse({"status": "error"}, status=404)
@@ -169,3 +188,18 @@ def delete_jobreq(request, pk):
     except JobReqResult.DoesNotExist:
         return JsonResponse({"status": "error"}, status=404)
     
+
+def format_salary(salary):
+    if not salary:
+        return ""
+
+    min_amt = salary.get('min_amount')
+    max_amt = salary.get('max_amount')
+    currency = salary.get('currency', '$')
+    period = salary.get('payment_period', '')
+
+    if min_amt and max_amt:
+        return f"{currency}{min_amt//1000}-{max_amt//1000},{max_amt%1000:03d}{period}"
+    elif min_amt:
+        return f"{currency}{min_amt:,}{period}"
+    return ""

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+import json
+import ast
 
 class JobReqResult(models.Model):
     STATUS_CHOICES = [
@@ -58,6 +60,34 @@ class JobListingResult(models.Model):
     
     jobreq_result = models.ForeignKey(JobReqResult, on_delete=models.CASCADE, related_name='job_listing_results')
 
+    @property
+    def salary_display(self):
+        if not self.salary:
+            return ""
+
+        salary = self.salary
+
+        # Handle string case
+        if isinstance(salary, str):
+            try:
+                salary = json.loads(salary)  # valid JSON
+            except json.JSONDecodeError:
+                try:
+                    salary = ast.literal_eval(salary)  # Python dict string ✅
+                except Exception:
+                    return salary  # give up, return raw
+
+        min_amt = salary.get('min_amount')
+        max_amt = salary.get('max_amount')
+        currency = salary.get('currency', '$')
+        period = salary.get('payment_period', '')
+
+        if min_amt and max_amt:
+            return f"{currency}{min_amt:,}–{max_amt:,}/{period}"
+        elif min_amt:
+            return f"{currency}{min_amt:,}/{period}"
+
+        return ""
 
 class Snapshot(models.Model):
     snapshot_id = models.CharField(max_length=256)

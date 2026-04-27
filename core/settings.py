@@ -41,9 +41,12 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/django/jobsearch/'   # or wherever you want after login
-LOGOUT_REDIRECT_URL = '/django/jobsearch/'
+LOGOUT_REDIRECT_URL = '/'
 
-FORCE_SCRIPT_NAME = '/django/jobsearch'
+if not DEBUG:
+    FORCE_SCRIPT_NAME = '/django/jobsearch'
+else:
+    FORCE_SCRIPT_NAME = None
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = config('DEBUG', default=False, cast=bool)

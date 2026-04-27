@@ -43,3 +43,13 @@ nav {
 .hint strong {
     color: yellow;
 }
+
+.logout-link {
+    margin-left: 8px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.logout-link:hover {
+    text-decoration: underline;
+}
