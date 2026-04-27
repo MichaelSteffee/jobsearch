@@ -24,8 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY =  config('DJANGO_SECRET_KEY')
 OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
 
-# temp for dev
-DEBUG = True
+# Set DEBUG from config file
+DEBUG = config('DEBUG', default=False, cast=bool)
+
 ALLOWED_HOSTS = [
     "michaelsteffee.com",
     "www.michaelsteffee.com",
@@ -40,18 +41,25 @@ CSRF_TRUSTED_ORIGINS = [
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 LOGIN_URL = '/auth/login/'
-LOGIN_REDIRECT_URL = '/django/jobsearch/'   # or wherever you want after login
 LOGOUT_REDIRECT_URL = '/'
 
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
 if not DEBUG:
     FORCE_SCRIPT_NAME = '/django/jobsearch'
+    STATIC_URL = '/django/jobsearch/static/'
+    LOGIN_REDIRECT_URL = '/django/jobsearch/'   
 else:
+    STATIC_URL = '/static/'
     FORCE_SCRIPT_NAME = None
+    LOGIN_REDIRECT_URL = '/'   
 
-# SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = config('DEBUG', default=False, cast=bool)
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
-#ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 USE_X_FORWARDED_HOST = True
 
@@ -141,20 +149,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-STATIC_URL = '/django/jobsearch/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-#  Turned off STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# I think this is the same as STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
